@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
+from utils import squash
+
 class primaryCaps(nn.Module):
     """
         This layer is implementation of PrimaryCaps that described in Figure1.
@@ -26,12 +28,7 @@ class primaryCaps(nn.Module):
         """
         units = [conv_unit(x) for conv_unit in self.capsules]
         # output shape: [batch_size, n_units, out_size, feature_size, feature_size]
-        units = torch.stack(units, dim = 1)
-
-        # Flatten the units
-        units = units.view(x.size(0), len(units), -1)
+        units = torch.stack(units, dim = 1).view(x.size(0), len(units), -1)
         units = units.permute(0, 2, 1) # [batch_size, total_caps, n_units]
 
-        # TODO: Non-linear function, squashing the units
-
-        return capsules
+        return squash(capsules)

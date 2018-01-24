@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
+from utils import squash
+
 class digitCaps(nn.Module):
     """
 
@@ -43,7 +45,6 @@ class digitCaps(nn.Module):
 			s_j = (c_ij * u_ji).sum(dim = 1, keepdim = True)
 
 			# s_j: [batch, 1, n_cls, out_units, 1]
-			# TODO: squash s_j
 			v_j = squash(s_j)
 			
 			# Agreement is dot product of u(below layer output) with v(output of capsule)
