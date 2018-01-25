@@ -50,7 +50,6 @@ def train():
 	r_loss = 0
 	epoch = 0
 
-	# TODO: data load
 	epoch_size = len(dataset) // args.batch_size
 	steps = 0
 
@@ -67,9 +66,11 @@ def train():
 
 		images, targets = next(batch_iterator)
 
-		# TODO: cuda enable
 		images = Variable(images)
 		targets = Variable(targets, volatile = True)
+		if args.cuda:
+			images = images.cuda()
+			targets = targets.cuda()
 
 		t0 = time.time()
 		out = net(images)
@@ -80,6 +81,7 @@ def train():
 		opt.step()
 		t1 = time.time()
 
+		# TODO: logger...
 		#================ TensorBoard logging ================#
 
 		if (iteration % 10) == 0: # Display period
@@ -96,6 +98,9 @@ def train():
 				# TODO:cuda enble
 				test_images = Variable(test_images)
 				test_targets = Variable(test_targets, volatile = True)
+				if args.cuda:
+					test_images = test_images.cuda()
+					test_targets = test_targets.cuda()
 
 				out = net(test_images)
 				m_loss, r_loss = margin_loss(out, test_targets), recon_loss(out, test_images)
