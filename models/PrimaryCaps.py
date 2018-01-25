@@ -4,6 +4,8 @@ from torch.autograd import Variable
 
 from utils import squash
 
+# TODO: unit test
+
 class primaryCaps(nn.Module):
     """
         This layer is implementation of PrimaryCaps that described in Figure1.

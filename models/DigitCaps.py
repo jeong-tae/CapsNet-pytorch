@@ -5,6 +5,8 @@ from torch.autograd import Variable
 
 from utils import squash
 
+# TODO: unit test
+
 class digitCaps(nn.Module):
     """
 
