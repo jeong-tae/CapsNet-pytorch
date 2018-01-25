@@ -1,0 +1,15 @@
+dataset
+ckpt
+results
+examples
+!visual/*.py
+*.pyc
+*.png
+*.jpg
+*.jpeg
+*.xlsx
+*.zip
+*.cktp
+*.pkl
+*.csv
+*.swp
