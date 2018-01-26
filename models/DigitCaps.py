@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-from utils import squash
+from .utils import squash
 
 class digitCaps(nn.Module):
     """

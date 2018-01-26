@@ -3,8 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-from DigitCaps import digitCaps
-from PrimaryCaps import primaryCaps
+from .DigitCaps import digitCaps
+from .PrimaryCaps import primaryCaps
 
 class capsNet(nn.Module):
 	def __init__(self, config):

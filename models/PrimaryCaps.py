@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-from utils import squash
+from .utils import squash
 
 class primaryCaps(nn.Module):
     """
