@@ -19,12 +19,12 @@ Use CUDA_VISIBLE_DEVICES=$GPU, instead of GPU selection
 
 See details in trainer.py to modify the hyper-params
 
-```
-python trainer.py --cuda
+```bash
+$ python trainer.py --cuda
 ```
 
 or try this. if you don't want to use GPU
 
-```
-python trainer.py
+```bash
+$ python trainer.py
 ```

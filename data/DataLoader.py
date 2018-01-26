@@ -1,7 +1,7 @@
 from torch.utils.data import DataLoader
 from torchvision import transforms, datasets
 
-
+# Do we need to shift the 2 pixels in each direction? like paper?
 data_transform = transforms.Compose([
 		transforms.ToTensor(),
 		transforms.Normalize((0.1307,), (0.3081,)) # why most of code use this numbers...?
