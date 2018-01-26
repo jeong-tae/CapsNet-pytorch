@@ -21,15 +21,15 @@ This repo aims to implement a "Dynamic Routing Between Capsules"[paper](https://
 
 ## Usage
 
-For training, use following command. GPU Selection is not available on this repo.
+For training, use following command.
 
-See details in trainer.py to modify the hyper-params
+See details in trainer.py to modify the hyper-params or --help will let you know
 
 ```bash
 $ python trainer.py --cuda
 ```
 
-Use CUDA_VISIBLE_DEVICES=$GPU, instead of GPU selection
+Use CUDA_VISIBLE_DEVICES=$GPU, if you want to select GPU devices
 
 ```bash
 $ CUDA_VISIBLE_DEVICES=0 python trainer.py --cuda
