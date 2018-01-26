@@ -4,8 +4,6 @@ from torch.autograd import Variable
 
 from utils import squash
 
-# TODO: unit test
-
 class primaryCaps(nn.Module):
     """
         This layer is implementation of PrimaryCaps that described in Figure1.
@@ -31,6 +29,15 @@ class primaryCaps(nn.Module):
         units = [conv_unit(x) for conv_unit in self.capsules]
         # output shape: [batch_size, n_units, out_size, feature_size, feature_size]
         units = torch.stack(units, dim = 1).view(x.size(0), len(units), -1)
-        units = units.permute(0, 2, 1) # [batch_size, total_caps, n_units]
+        capsules = squash(units, dim = 2) # [batch, n_units, out_size * feature_size**2]
 
-        return squash(capsules)
+        return capsules.permute(0, 2, 1)
+
+if __name__ == '__main__':
+    x = torch.ones(2, 256, 28, 28)
+    x = Variable(x).cuda()
+    print(" [*] input:", x.size())
+
+    net = primaryCaps().cuda()
+    capsules = net(x)
+    print(" [*] output:", capsules.size())

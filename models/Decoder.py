@@ -38,7 +38,7 @@ class decoder(nn.Module):
 		"""
 		if y == None:
 			# TODO: complete this ft
-			raise NotImplemented(" [!] Reconstruction at test tims is not implemented yet")
+			raise NotImplemented(" [!] Reconstruction at test times is not implemented yet")
 		else:
 			masked = (x * y.view(y.size(0), y.size(1), 1))
 			return masked
