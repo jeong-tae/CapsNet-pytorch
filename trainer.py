@@ -8,6 +8,7 @@ from torch.autograd import Variable
 from models.CapsNet import capsNet
 from models.Loss import marginLoss, reconstructionLoss
 from data.DataLoader import load_mnist
+from models.utils import accuracy
 
 import argparse
 
@@ -16,12 +17,10 @@ parser = argparse.ArgumentParser(description = "Training arguments for CapsNet")
 parser.add_argment('--max_iter', type = int, default = 100000, help = "Maximum training iterations")
 parser.add_argment('--batch_size', type = int, default = 64, help = "Mini-batch size per iteration")
 parser.add_argment('--num_classes', type = int, default = 10, help = "Number of labels")
-parser.add_argment('--r_iteration', type = int, default = 3, help = "Routing iteration")
+parser.add_argment('--r_iterations', type = int, default = 3, help = "Routing iteration")
 parser.add_argment('--cuda', action = "store_true", default = False, help = "Use cuda to train")
 
 args = parser.parse_args()
-
-#TODO: cuda possible
 
 if args.cuda and torch.cuda.is_available():
 	torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -31,7 +30,7 @@ else:
 	print(" [*] Set Cuda: False")
 
 # TODO: weight load
-net = capsNet()
+net = capsNet(args) # first argument should be network configuration for building a network.
 
 if args.cuda:
 	net = torch.nn.DataParallel(net)
@@ -93,9 +92,9 @@ def train():
 			test_iteration = iter(test_loader)
 
 			test_loss = []
+			total_acc = []
 			for i in range(0, int(len(testset)/args.batch_size)):
 				test_images, test_targets = next(test_iteration)
-				# TODO:cuda enble
 				test_images = Variable(test_images)
 				test_targets = Variable(test_targets, volatile = True)
 				if args.cuda:
@@ -106,10 +105,15 @@ def train():
 				m_loss, r_loss = margin_loss(out, test_targets), recon_loss(out, test_images)
 				loss = (m_loss.data[0], r_loss.data[0])
 				test_loss.append(loss)
+
+				acc = accuracy(out, test_targets)
+				total_acc.append(acc)
+
 			test_loss = np.mean(test_loss)
-			# TODO: add test loss to logger
-			# TODO: get accuracy
-			print('  [*] Test loss: %.4f'%test_loss)
+			test_acc = np.mean(total_acc)
+			# TODO: add test loss and acc to logger
+			print('  [*] Test loss: %.4f, Test acc: %.4f'%test_loss, test_acc)
+
 
 			if test_loss < old_loss or (iteration % 1000 == 0):
 				# always save at some iteration
@@ -118,6 +122,8 @@ def train():
 				torch.save(net.state_dict(), file_path)
 				if test_loss < old_loss:
 					old_loss = test_loss
+
+			# TODO: get reconstruction samples
 
 			# back to train mode
 			net_train()
