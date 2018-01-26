@@ -40,17 +40,13 @@ class reconstructionLoss(nn.Module):
         """
             Args
                 x: [batch, 784], 784 is size of sample in MNIST
-                y: [batch, 28, 28, 1]
+                y: [batch, 1, 28, 28]
 
             return
                 r_loss
         """
         y = y.view(y.size(0), -1)
-        try:
-            r_loss = torch.sum((x - y)**2, dim = 1)
-        except:
-            import pdb
-            pdb.set_trace()
+        r_loss = torch.sum((x - y)**2, dim = 1)
         r_loss = r_loss.mean() # Mean squared loss
         return r_loss * self.lamb
 

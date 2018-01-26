@@ -18,6 +18,7 @@ import argparse, time
 parser = argparse.ArgumentParser(description = "Training arguments for CapsNet")
 parser.add_argument('--max_iter', type = int, default = 100000, help = "Maximum training iterations")
 parser.add_argument('--batch_size', type = int, default = 64, help = "Mini-batch size per iteration")
+parser.add_argument('--lr', type = float, default = 0.01, help = "Learning rate to train")
 parser.add_argument('--num_classes', type = int, default = 10, help = "Number of labels")
 parser.add_argument('--r_iterations', type = int, default = 3, help = "Routing iteration")
 parser.add_argument('--cuda', action = "store_true", default = False, help = "Use cuda to train")
@@ -37,12 +38,13 @@ decoder_net = decoder(args)
 
 if args.cuda:
     net = torch.nn.DataParallel(net)
+    decoder_net = torch.nn.DataParallel(decoder_net)
     cudnn.benchmark = True
 
 margin_loss = marginLoss()
 recon_loss = reconstructionLoss()
 
-opt = optim.Adam(net.parameters())
+opt = optim.Adam(net.parameters(), lr = args.lr)
 print(" [*] Training is ready now!")
 # TODO: set logger
 
@@ -102,7 +104,7 @@ def train():
         recon_images = decoder_net(out, targets)
         opt.zero_grad()
         m_loss, r_loss = margin_loss(out, targets), recon_loss(recon_images, images)
-        loss = (m_loss + r_loss)
+        loss = (m_loss + r_loss) # r_loss not decreasing now...
         loss.backward()
         opt.step()
         t1 = time.time()
@@ -116,12 +118,10 @@ def train():
         if (iteration % 200) == 0: # Eval period
             # set to net eval mode
             net.eval()
-            test_iteration = iter(test_loader)
 
             test_loss = []
             total_acc = []
-            for i in range(0, int(len(testset)/args.batch_size)):
-                test_images, test_targets = next(test_iteration)
+            for test_images, test_targets in test_loader:
                 test_targets = one_hot(test_targets, args.num_classes)
                 test_images = Variable(test_images)
                 test_targets = Variable(test_targets)
