@@ -9,7 +9,6 @@ examples
 *.jpeg
 *.xlsx
 *.zip
-*.cktp
 *.pkl
 *.csv
 *.swp
