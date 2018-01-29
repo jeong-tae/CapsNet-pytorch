@@ -7,16 +7,16 @@ This repo aims to implement a "Dynamic Routing Between Capsules"[paper](https://
 - [torchvision](https://github.com/pytorch/vision)
 - numpy
 - [tensorflow](https://www.tensorflow.org/install/)
-    - Not using right now. This for tensorboard
 
 ## TODO
 
 - [x] Network building
 - [x] Training on MNIST
+- [x] Training visualization(on Tensorboard)
 - [ ] Training on MultiMNIST
 - [ ] Weight load and inference
 - [ ] Reconstruction at test time
-- [ ] Reconstructed sample visualization
+- [x] Reconstructed sample visualization(Training only now)
 - [ ] Results reproduce and report on README.md
 
 ## Usage
@@ -40,6 +40,14 @@ or try this. if you don't want to use GPU
 ```bash
 $ python trainer.py
 ```
+
+If you want to see visualization of training and reconstruction samples,
+
+```bash
+$ Tensorboard --log='visual/' --port=6666
+```
+
+and go to 'localhost:6666' on webbrowser. You can see the Loss, Acc and Images.
 
 ## References
 

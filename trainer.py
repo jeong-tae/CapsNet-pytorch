@@ -1,3 +1,5 @@
+from visual import Logger
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -10,7 +12,6 @@ from models.Decoder import decoder
 from models.Loss import marginLoss, reconstructionLoss
 from data.DataLoader import load_mnist
 from models.utils import accuracy
-from visual import Logger
 
 import numpy as np
 import argparse, time
@@ -18,13 +19,13 @@ import argparse, time
 #TODO: take hyper-params as args and put into model config
 parser = argparse.ArgumentParser(description = "Training arguments for CapsNet")
 parser.add_argument('--max_iter', type = int, default = 100000, help = "Maximum training iterations")
-parser.add_argument('--batch_size', type = int, default = 64, help = "Mini-batch size per iteration")
+parser.add_argument('--batch_size', type = int, default = 128, help = "Mini-batch size per iteration")
 parser.add_argument('--lr', type = float, default = 0.01, help = "Learning rate to train")
 parser.add_argument('--num_classes', type = int, default = 10, help = "Number of labels")
 parser.add_argument('--r_iterations', type = int, default = 3, help = "Routing iteration")
 parser.add_argument('--cuda', action = "store_true", default = False, help = "Use cuda to train")
-parser_add_argument('--ckpt_postfix' = 'MNIST', type = str, help = "Add postfix to check point name like caps_$postfix_$iteration.pth"
-parser.add_argument('--log_dir', 'MNIST', type = str, help = "Directory for saving a logs, will be stored in visual/")
+parser.add_argument('--ckpt_postfix', type = str, default = 'MNIST', help = "Add postfix to check point name like caps_$postfix_$iteration.pth")
+parser.add_argument('--log_dir', type = str, default = 'MNIST', help = "Directory for saving a logs, will be stored in visual/")
 
 args = parser.parse_args()
 
@@ -128,7 +129,7 @@ def train():
             print(' [*] Epoch[%d], Iter %d || Loss: %.4f || m_loss: %.4f || r_loss: %.4f || Timer: %.4f sec'%(epoch, iteration, loss.data[0], m_loss.data[0], r_loss.data[0], (t1 - t0)))
             
             recon_images = recon_images.view(-1, 28, 28)[:10]
-            recon_images = recon_images.cpu().numpy()
+            recon_images = recon_images.data.cpu().numpy()
             logger.image_summary('reconstruction images', recon_images, iteration + 1)
 
         if (iteration % 200) == 0: # Eval period
