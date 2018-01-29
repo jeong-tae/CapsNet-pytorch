@@ -1,7 +1,5 @@
 dataset
 data
-visual
-ckpt
 results
 examples
 !visual/*.py
@@ -15,3 +13,4 @@ examples
 *.pkl
 *.csv
 *.swp
+*.pth

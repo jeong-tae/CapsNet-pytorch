@@ -44,7 +44,9 @@ if args.cuda:
 margin_loss = marginLoss()
 recon_loss = reconstructionLoss()
 
-opt = optim.Adam(net.parameters(), lr = args.lr)
+parameters = set(net.parameters()) | set(decoder_net.parameters())
+
+opt = optim.Adam(parameters, lr = args.lr)
 print(" [*] Training is ready now!")
 # TODO: set logger
 
