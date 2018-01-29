@@ -3,6 +3,7 @@ data
 results
 examples
 !visual/*.py
+visual/*/events*
 *.pyc
 *.png
 *.jpg
