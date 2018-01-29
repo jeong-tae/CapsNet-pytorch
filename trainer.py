@@ -20,7 +20,7 @@ import argparse, time
 parser = argparse.ArgumentParser(description = "Training arguments for CapsNet")
 parser.add_argument('--max_iter', type = int, default = 100000, help = "Maximum training iterations")
 parser.add_argument('--batch_size', type = int, default = 128, help = "Mini-batch size per iteration")
-parser.add_argument('--lr', type = float, default = 0.01, help = "Learning rate to train")
+parser.add_argument('--lr', type = float, default = 0.001, help = "Learning rate to train")
 parser.add_argument('--num_classes', type = int, default = 10, help = "Number of labels")
 parser.add_argument('--r_iterations', type = int, default = 3, help = "Routing iteration")
 parser.add_argument('--cuda', action = "store_true", default = False, help = "Use cuda to train")
@@ -174,7 +174,7 @@ def train():
             # TODO: get reconstruction samples
 
             # back to train mode
-            # TODO: decoder also go back to train mode
+            # TODO: decoder also go back to train mode, no need in current code
             net.train()
     torch.save(net.state_dict(), 'ckppt/caps_%s_last.pth'%args.ckpt_postfix)
 

@@ -34,7 +34,7 @@ class marginLoss(nn.Module):
 class reconstructionLoss(nn.Module):
     def __init__(self, lamb = 0.0005):
         super(reconstructionLoss, self).__init__()
-        self.lamb = 0.0005 # scale down
+        self.lamb = 0.0005 # scale down, 0.0005 * 784 = 0.392 ??
 
     def forward(self, x, y):
         """
