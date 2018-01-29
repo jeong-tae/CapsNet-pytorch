@@ -10,6 +10,7 @@ from models.Decoder import decoder
 from models.Loss import marginLoss, reconstructionLoss
 from data.DataLoader import load_mnist
 from models.utils import accuracy
+from visual import Logger
 
 import numpy as np
 import argparse, time
@@ -22,6 +23,8 @@ parser.add_argument('--lr', type = float, default = 0.01, help = "Learning rate 
 parser.add_argument('--num_classes', type = int, default = 10, help = "Number of labels")
 parser.add_argument('--r_iterations', type = int, default = 3, help = "Routing iteration")
 parser.add_argument('--cuda', action = "store_true", default = False, help = "Use cuda to train")
+parser_add_argument('--ckpt_postfix' = 'MNIST', type = str, help = "Add postfix to check point name like caps_$postfix_$iteration.pth"
+parser.add_argument('--log_dir', 'MNIST', type = str, help = "Directory for saving a logs, will be stored in visual/")
 
 args = parser.parse_args()
 
@@ -31,6 +34,9 @@ if args.cuda and torch.cuda.is_available():
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
     print(" [*] Set Cuda: False")
+
+
+logger = Logger('./visual/' + args.log_dir)
 
 # TODO: weight load
 net = capsNet(args) # first argument should be network configuration for building a network.
@@ -113,9 +119,17 @@ def train():
 
         # TODO: logger...
         #================ TensorBoard logging ================#
+        logger.scalar_summary('m_loss', m_loss.data[0], iteration + 1)
+        logger.scalar_summary('r_loss', r_loss.data[0], iteration + 1)
+        logger.scalar_summary('loss', m_loss.data[0] + r_loss.data[0], iteration + 1)
+
 
         if (iteration % 10) == 0: # Display period
             print(' [*] Epoch[%d], Iter %d || Loss: %.4f || m_loss: %.4f || r_loss: %.4f || Timer: %.4f sec'%(epoch, iteration, loss.data[0], m_loss.data[0], r_loss.data[0], (t1 - t0)))
+            
+            recon_images = recon_images.view(-1, 28, 28)[:10]
+            recon_images = recon_images.cpu().numpy()
+            logger.image_summary('reconstruction images', recon_images, iteration + 1)
 
         if (iteration % 200) == 0: # Eval period
             # set to net eval mode
@@ -145,12 +159,13 @@ def train():
             test_acc = np.mean(total_acc)
             # TODO: add test loss and acc to logger
             print('  [*] Test loss: %.4f, Test acc: %.4f'%(test_loss, test_acc))
-
+            logger.scalar_summary('test_loss', test_loss, iteration + 1)
+            logger.scalar_summary('test_acc', test_acc, iteration + 1)
 
             if test_loss < old_loss or (iteration % 1000 == 0):
                 # always save at some iteration
                 print("  [*] Save ckpt, iter: %d at ckpt/"%iteration)
-                file_path = 'ckpt/caps_mnist_%d.pth'%(iteration)
+                file_path = 'ckpt/caps_%s_%d.pth'%(args.ckpt_postfix, iteration)
                 torch.save(net.state_dict(), file_path)
                 if test_loss < old_loss:
                     old_loss = test_loss
@@ -160,7 +175,7 @@ def train():
             # back to train mode
             # TODO: decoder also go back to train mode
             net.train()
-    torch.save(net.state_dict(), 'ckppt/caps_mnist_last.pth')
+    torch.save(net.state_dict(), 'ckppt/caps_%s_last.pth'%args.ckpt_postfix)
 
 if __name__ == '__main__':
     train()
