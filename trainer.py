@@ -21,6 +21,8 @@ parser = argparse.ArgumentParser(description = "Training arguments for CapsNet")
 parser.add_argument('--max_iter', type = int, default = 100000, help = "Maximum training iterations")
 parser.add_argument('--batch_size', type = int, default = 128, help = "Mini-batch size per iteration")
 parser.add_argument('--lr', type = float, default = 0.001, help = "Learning rate to train")
+parser.add_argument('---decay_steps', type = int, default = 2500, help = "How often decay the learning rate")
+parser.add_argument('---lr_decay_rate', type = float, default = 0.96, help = "How much decay the learning rate")
 parser.add_argument('--num_classes', type = int, default = 10, help = "Number of labels")
 parser.add_argument('--r_iterations', type = int, default = 3, help = "Routing iteration")
 parser.add_argument('--cuda', action = "store_true", default = False, help = "Use cuda to train")
@@ -80,6 +82,7 @@ def train():
     m_loss = 0
     r_loss = 0
     old_loss = 999. # initial loss to compare with current loss
+    old_acc = 0.
     epoch = -1
 
     steps = 0
@@ -98,6 +101,9 @@ def train():
 
         if iteration % epoch_size == 0:
             epoch += 1
+
+        if iteration % args.decay_steps == 0:
+            exp_lr_decay(opt, args.lr, args.lr_decay_rate, iteration, args.decay_steps)
 
         images, targets = next(batch_iterator)
         targets = one_hot(targets, args.num_classes)
@@ -163,20 +169,27 @@ def train():
             logger.scalar_summary('test_loss', test_loss, iteration + 1)
             logger.scalar_summary('test_acc', test_acc, iteration + 1)
 
-            if test_loss < old_loss or (iteration % 1000 == 0):
+            if test_loss < old_loss or test_acc > old_loss or (iteration % 1000 == 0):
                 # always save at some iteration
                 print("  [*] Save ckpt, iter: %d at ckpt/"%iteration)
                 file_path = 'ckpt/caps_%s_%d.pth'%(args.ckpt_postfix, iteration)
                 torch.save(net.state_dict(), file_path)
                 if test_loss < old_loss:
                     old_loss = test_loss
+                if test_acc > old_loss:
+                    old_acc = test_acc
 
             # TODO: get reconstruction samples
 
             # back to train mode
             # TODO: decoder also go back to train mode, no need in current code
             net.train()
-    torch.save(net.state_dict(), 'ckppt/caps_%s_last.pth'%args.ckpt_postfix)
+    torch.save(net.state_dict(), 'ckpt/caps_%s_last.pth'%args.ckpt_postfix)
+
+def exp_lr_decay(optimizer, init_lr, decay_rate, steps, decay_steps):
+    lr = init_lr * (decay_rate ** (steps // decay_steps))
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
 
 if __name__ == '__main__':
     train()
